@@ -1,0 +1,56 @@
+#/bin/bash
+
+# first param
+
+var=$1
+
+# check args
+
+if [ $# -ne 2 ]; then
+      echo "invalid number of args" >&2
+      exit 1
+fi
+
+
+
+while read line; do
+
+     if [ ! -r $line.in ] || [ ! -r $line.out ] || [ ! -f $line.in ] || [ ! -f $line.out ]; then
+          echo "file not found" >&2   
+          exit 1
+     fi
+    
+     
+     if [ -f $line.args ] || [ -r $line.args ]; then
+
+          input=`cat $line.in`
+          output=`cat $line.out`
+          something=`cat $line.args`
+          actualline=`$2 $something < $line.in`
+          
+     
+   
+     elif [ ! -f $line.args ] || [ ! -r $line.args ]; then
+
+          input=`cat $line.in`
+          output=`cat $line.out`
+
+	  actualline=`$2 < $line.in`
+     fi 
+
+#     diff -a $output $actualline >/dev/null
+
+     if [ "$output" != "$actualline" ]; then
+
+           echo "Test failed: $line"
+           echo "Input:"
+           echo $input
+           echo "Expected:"
+           echo $output
+           echo "Actual:"
+           echo "$actualline"
+
+     fi
+
+done < "$var"
+
